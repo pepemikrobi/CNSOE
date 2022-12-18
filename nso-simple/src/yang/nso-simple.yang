@@ -1,0 +1,48 @@
+module nso-simple {
+  namespace "http://com/example/nsosimple";
+  prefix nso-simple;
+
+  import tailf-common {
+      prefix tailf;
+  } 
+
+  import tailf-ncs {
+    prefix ncs;
+  }
+
+  list nso-simple {
+    key name;
+
+    uses ncs:service-data;
+    ncs:servicepoint "nso-simple";
+  
+    leaf name {
+      tailf:info "<name> nso-simple service name";
+      type string {
+        pattern '([0-9a-zA-Z_-])*' {
+          error-message "Illegal service name";
+        }
+      }
+    }
+
+    // may replace this with other ways of refering to the devices.
+    leaf-list device {
+      tailf:info "Devices to apply the service";
+      type leafref {
+        path "/ncs:devices/ncs:device/ncs:name";
+      }
+    }
+
+    // replace with your own stuff here
+    leaf index {
+      tailf:info "An index for service";
+      type uint16
+      {
+        range 10..99 {
+          error-message "Index out of specified range";
+        }
+      }
+    }
+  }
+
+}

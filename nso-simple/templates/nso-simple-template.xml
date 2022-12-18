@@ -1,0 +1,57 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0"
+                 servicepoint="nso-simple">
+  <devices xmlns="http://tail-f.com/ns/ncs">
+    <device>
+      <name>{/device}</name>
+      <config>
+
+        <!-- Cisco IOS: VRF config -->
+        <vrf xmlns="urn:ios">
+          <definition>
+            <name>NSO_VRF{/index}</name>
+            <address-family>
+              <ipv4/>
+              <ipv6/>
+            </address-family>
+          </definition>
+        </vrf>
+
+        <!-- Cisco IOS XR: VRF config -->
+        <vrf xmlns="http://tail-f.com/ned/cisco-ios-xr">
+          <vrf-list>
+            <name>NSO_VRF{/index}</name>
+            <address-family>
+              <ipv4>
+                <unicast/>
+              </ipv4>
+              <ipv6>
+                <unicast/>
+              </ipv6>
+            </address-family>
+          </vrf-list>
+        </vrf>
+
+        <!-- Loopback interface config -->
+        <interface xmlns="urn:ios">
+          <Loopback>
+            <name>10{/index}</name>
+            <description>Created by Cisco NSO</description>
+            <vrf>
+              <forwarding>NSO_VRF{/index}</forwarding>
+            </vrf>
+          </Loopback>
+        </interface>
+
+        <!-- Cisco IOS XR: Loopback interface config -->
+        <interface xmlns="http://tail-f.com/ned/cisco-ios-xr">
+          <Loopback>
+            <id>10{/index}</id>
+            <description>Created by Cisco NSO</description>
+            <vrf>NSO_VRF{/index}</vrf>
+          </Loopback>
+        </interface>
+
+      </config>
+    </device>
+  </devices>
+</config-template>

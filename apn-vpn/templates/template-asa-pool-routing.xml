@@ -1,0 +1,29 @@
+<!-- template-asa-pool-routing -->
+<!--
+  Configure ASAv CPE firewall IP pool routes
+
+  Initial context:
+  - /APN/apn
+
+  Object reference:
+  - [none]
+-->
+
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <devices xmlns="http://tail-f.com/ns/ncs">
+    <device>
+      <name>{$VAR_DEVICE}</name>
+      <config>
+
+        <route xmlns="http://cisco.com/ned/asa">
+          <id>PROVIDER</id>
+          <net>{$VAR_IP_POOL_NET}</net>
+          <net-mask>{$VAR_IP_POOL_MASK}</net-mask>
+          <gw>{$VAR_EXT_ROUTER_FW_IP_ADDR}</gw>
+          <metric>1</metric>
+        </route>
+
+      </config>
+    </device>
+  </devices>
+</config>

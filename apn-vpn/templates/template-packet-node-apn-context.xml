@@ -1,0 +1,108 @@
+<!-- template-packet-node-apn-context -->
+<!--
+  Configure APN in the APN context
+
+  Initial context:
+  - /APN/apn
+
+  Object reference:
+  - [none]
+-->
+
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <devices xmlns="http://tail-f.com/ns/ncs">
+    <device>
+      <name>{$VAR_DEVICE}</name>
+      <config>
+
+        <!-- [STAROS] context billing / APN common config -->
+        <context xmlns="http://tail-f.com/ned/cisco-staros">
+          <name>{$VAR_APN_CONTEXT_NAME}</name>
+          <apn>
+            <name>{$VAR_APN}</name>
+            <pdp-type>
+              <ipv4>
+                <ipv6/>
+              </ipv4>
+            </pdp-type>
+            <selection-mode>
+              <subscribed/>
+              <sent-by-ms/>
+              <chosen-by-sgsn/>
+            </selection-mode>
+            <accounting-mode>
+              <none/>
+            </accounting-mode>
+            <apn-ambr>
+              <rate-limit>
+                <direction>
+                  <downlink>
+                    <burst-size>
+                      <size>auto-readjust</size>
+                      <duration>1</duration>
+                    </burst-size>
+                    <violate-action>drop</violate-action>
+                  </downlink>
+                  <uplink>
+                    <burst-size>
+                      <size>auto-readjust</size>
+                      <duration>1</duration>
+                    </burst-size>
+                    <violate-action>drop</violate-action>
+                  </uplink>
+                </direction>
+              </rate-limit>
+            </apn-ambr>
+            <ip>
+              <source-violation>
+                <check/>
+                <drop-limit>0</drop-limit>
+              </source-violation>
+              <access-group>
+                <acl-name>ecs</acl-name>
+                <in/>
+                <out/>
+              </access-group>
+              <address>
+                <alloc-method>
+                  <local>true</local>
+                </alloc-method>
+              </address>
+            </ip>
+            <authentication>
+              <allow-noauth/>
+              <pco-username>pap</pco-username>
+            </authentication>
+          </apn>
+        </context>
+
+        <!-- [STAROS] context billing / APN common -->
+        <context xmlns="http://tail-f.com/ned/cisco-staros">
+          <name>{$VAR_APN_CONTEXT_NAME}</name>
+          <apn>
+            <name>{$VAR_APN}</name>
+            <active-charging>
+              <rulebase>{$VAR_RULEBASE_NAME}</rulebase>
+            </active-charging>
+            <ip>
+              <context-name>{$VAR_GI_CONTEXT_NAME}</context-name>
+              <address>
+                <?foreach {ip-pool-group}?>
+                  <pool>
+                    <name>{name}</name>
+                  </pool>
+                <?end?>
+              </address>
+            </ip>
+          </apn>
+        </context>
+
+
+
+      </config>
+    </device>
+  </devices>
+</config>
+
+
+

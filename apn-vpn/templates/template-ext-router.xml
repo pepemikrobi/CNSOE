@@ -1,0 +1,236 @@
+<!-- template-ext-router -->
+<!--
+  Configure ASR1k external router
+
+  Initial context:
+  - /APN/apn
+
+  Object reference:
+  - [none]
+-->
+
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <devices xmlns="http://tail-f.com/ns/ncs">
+    <device>
+      <name>{$VAR_DEVICE}</name>
+      <config>
+
+        <!-- [IOS] Gi interface-->
+        <interface xmlns="urn:ios">
+          <GigabitEthernet>
+            <name>1</name>
+            <shutdown tags="delete"></shutdown>
+            <ip>
+              <no-address>
+                <address>false</address>
+              </no-address>
+            </ip>
+          </GigabitEthernet>
+        </interface>
+
+        <!-- [IOS] Gi sub-interface -->
+        <interface xmlns="urn:ios">
+          <GigabitEthernet>
+            <name>1.1001</name>
+            <shutdown tags="delete"></shutdown>
+            <encapsulation>
+              <dot1Q>
+                <vlan-id>1001</vlan-id>
+              </dot1Q>
+            </encapsulation>
+            <ip>
+              <address>
+                <primary>
+                  <address>{$VAR_EXT_ROUTER_GI_IP_ADDR}</address>
+                  <mask>{$VAR_EXT_ROUTER_GI_IP_MASK}</mask>
+                </primary>
+              </address>
+            </ip>
+          </GigabitEthernet>
+        </interface>
+
+        <!-- [IOS] Gi BGP routing -->
+        <router xmlns="urn:ios">
+          <bgp>
+            <as-no>{$VAR_EXT_ROUTER_BGP_AS}</as-no>
+            <bgp>
+              <router-id-interface>
+                <router-id>
+                  <interface>
+                    <Loopback>0</Loopback>
+                  </interface>
+                </router-id>
+              </router-id-interface>
+              <log-neighbor-changes>true</log-neighbor-changes>
+            </bgp>
+            <neighbor>
+              <id>{$VAR_PACKET_NODE_GI_IP_ADDR}</id>
+              <remote-as>{$VAR_PACKET_NODE_BGP_AS}</remote-as>
+            </neighbor>
+            <address-family>
+              <ipv4>
+                <af>unicast</af>
+                <redistribute>
+                  <connected/>
+                </redistribute>
+              </ipv4>
+            </address-family>
+          </bgp>
+        </router>
+
+        <!-- [IOS] APN VRF definition -->
+        <vrf xmlns="urn:ios">
+          <definition>
+            <name>{$VAR_VRF}</name>
+            <address-family>
+              <ipv4/>
+            </address-family>
+          </definition>
+        </vrf>
+
+        <!-- [IOS] Gi tunnel for APN VRF -->
+        <interface xmlns="urn:ios">
+          <Tunnel>
+            <name>{$VAR_EXT_ROUTER_TUNNEL_ID}</name>
+            <keepalive-period-retries>
+              <keepalive>
+                <period>5</period>
+                <retries>3</retries>
+              </keepalive>
+            </keepalive-period-retries>
+            <vrf>
+              <forwarding>{$VAR_VRF}</forwarding>
+            </vrf>
+            <ip>
+              <address>
+                <primary>
+                  <address>{$VAR_EXT_ROUTER_TUNNEL_IP_ADDR}</address>
+                  <mask>{$VAR_EXT_ROUTER_TUNNEL_IP_MASK}</mask>
+                </primary>
+              </address>
+            </ip>
+            <tunnel>
+              <source>{$VAR_EXT_ROUTER_GI_IP_ADDR}</source>
+              <destination>{$VAR_TUNNEL_LOOPBACK_IP}</destination>
+            </tunnel>
+          </Tunnel>
+        </interface>
+
+        <!-- [IOS] IP Pools static VRF routing -->
+        <ip xmlns="urn:ios">
+          <route>
+            <vrf>
+              <name>{$VAR_VRF}</name>
+              <ip-route-interface-list>
+                <prefix>{$VAR_IP_POOL_NET}</prefix>
+                <mask>{$VAR_IP_POOL_MASK}</mask>
+                <interface>Tunnel{$VAR_EXT_ROUTER_TUNNEL_ID}</interface>
+              </ip-route-interface-list>
+            </vrf>
+          </route>
+        </ip>
+
+
+        <!-- [IOS] Internet / Corp interface -->
+        <interface xmlns="urn:ios">
+          <GigabitEthernet>
+            <name>2</name>
+            <shutdown tags="delete"></shutdown>
+            <ip>
+              <no-address>
+                <address>false</address>
+              </no-address>
+            </ip>
+          </GigabitEthernet>
+        </interface>
+
+        <!-- [IOS] Internet sub-interface -->
+        <interface xmlns="urn:ios">
+          <GigabitEthernet>
+            <name>2.1003</name>
+            <shutdown tags="delete"></shutdown>
+            <encapsulation>
+              <dot1Q>
+                <vlan-id>1003</vlan-id>
+              </dot1Q>
+            </encapsulation>
+            <ip>
+              <address>
+                <primary>
+                  <address>{$VAR_EXT_ROUTER_INET_IP_ADDR}</address>
+                  <mask>{$VAR_EXT_ROUTER_INET_IP_MASK}</mask>
+                </primary>
+              </address>
+            </ip>
+          </GigabitEthernet>
+        </interface>
+
+        <!-- [IOS] Internet default -->
+        <ip xmlns="urn:ios">
+          <route>
+            <ip-route-forwarding-list>
+              <prefix>0.0.0.0</prefix>
+              <mask>0.0.0.0</mask>
+              <forwarding-address>{$VAR_EXT_ROUTER_INET_GATEWAY}</forwarding-address>
+            </ip-route-forwarding-list>
+          </route>
+        </ip>
+
+        <!-- [IOS] NAT interfaces -->
+        <interface xmlns="urn:ios">
+          <Tunnel>
+            <name>{$VAR_EXT_ROUTER_TUNNEL_ID}</name>
+            <ip>
+              <nat>
+                <inside/>
+              </nat>
+            </ip>
+          </Tunnel>
+          <GigabitEthernet>
+            <name>1.1001</name>
+            <ip>
+              <nat>
+                <outside/>
+              </nat>
+            </ip>
+          </GigabitEthernet>
+        </interface>
+
+        <!-- [IOS] APN VRF default to global -->
+        <ip xmlns="urn:ios">
+          <route>
+            <vrf>
+              <name>{$VAR_VRF}</name>
+              <ip-route-forwarding-list>
+                <prefix>0.0.0.0</prefix>
+                <mask>0.0.0.0</mask>
+                <forwarding-address>{$VAR_EXT_ROUTER_INET_GATEWAY}</forwarding-address>
+                <global/>
+              </ip-route-forwarding-list>
+            </vrf>
+          </route>
+        </ip>
+
+        <!-- [IOS] APN VRF NAT -->
+        <ip xmlns="urn:ios">
+          <nat>
+            <inside>
+              <source>
+                <list-vrf>
+                  <list>
+                    <id>{$VAR_APN_NAT_ACL_NAME}</id>
+                    <vrf>{$VAR_VRF}</vrf>
+                    <interface>GigabitEthernet2.1003</interface>
+                    <overload/>
+                  </list>
+                </list-vrf>
+              </source>
+            </inside>
+          </nat>
+        </ip>
+
+
+      </config>
+    </device>
+  </devices>
+</config>

@@ -1,0 +1,13 @@
+<ncs-package xmlns="http://tail-f.com/ns/ncs-packages">
+  <name>apn-vpn</name>
+  <package-version>1.0.20200522.2253</package-version>
+  <description>Generated Python package</description>
+  <ncs-min-version>5.2</ncs-min-version>
+
+  <component>
+    <name>ASR5k</name>
+    <application>
+      <python-class-name>ASR.Main</python-class-name>
+    </application>
+  </component>
+</ncs-package>

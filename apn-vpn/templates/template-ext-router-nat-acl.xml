@@ -1,0 +1,35 @@
+<!-- template-ext-router-nat-acl -->
+<!--
+  Configure ASR1k external router IP pool routing
+
+  Initial context:
+  - /APN/apn
+
+  Object reference:
+  - [none]
+-->
+
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <devices xmlns="http://tail-f.com/ns/ncs">
+    <device>
+      <name>{$VAR_DEVICE}</name>
+      <config>
+
+        <!-- [IOS] APN VRF NAT ACL -->
+        <ip xmlns="urn:ios">
+          <access-list>
+            <extended>
+              <ext-named-acl>
+                <name>{$VAR_APN_NAT_ACL_NAME}</name>
+                <ext-access-list-rule>
+                  <rule>{$VAR_APN_NAT_ACL_ACE}</rule>
+                </ext-access-list-rule>
+              </ext-named-acl>
+            </extended>
+          </access-list>
+        </ip>
+
+      </config>
+    </device>
+  </devices>
+</config>

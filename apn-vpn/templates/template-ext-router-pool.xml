@@ -1,0 +1,35 @@
+<!-- template-ext-router-pool -->
+<!--
+  Configure ASR1k external router IP pool routing
+
+  Initial context:
+  - /APN/apn
+
+  Object reference:
+  - [none]
+-->
+
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <devices xmlns="http://tail-f.com/ns/ncs">
+    <device>
+      <name>{$VAR_DEVICE}</name>
+      <config>
+
+        <!-- [IOS] IP Pools static VRF routing -->
+        <ip xmlns="urn:ios">
+          <route>
+            <vrf>
+              <name>{$VAR_VRF}</name>
+              <ip-route-interface-list>
+                <prefix>{$VAR_IP_POOL_NET}</prefix>
+                <mask>{$VAR_IP_POOL_MASK}</mask>
+                <interface>Tunnel{$VAR_EXT_ROUTER_TUNNEL_ID}</interface>
+              </ip-route-interface-list>
+            </vrf>
+          </route>
+        </ip>
+
+      </config>
+    </device>
+  </devices>
+</config>

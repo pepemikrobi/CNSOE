@@ -1,0 +1,40 @@
+<!-- template-packet-node-gi-context-pools -->
+<!--
+  Configure APN traffic in Gi context
+
+  Initial context:
+  - /APN/apn
+
+  Object reference:
+  - [none]
+-->
+
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <devices xmlns="http://tail-f.com/ns/ncs">
+    <device>
+      <name>{$VAR_DEVICE}</name>
+      <config>
+
+        <!-- [STAROS] context sgi pools -->
+        <context xmlns="http://tail-f.com/ned/cisco-staros">
+          <name>{$VAR_GI_CONTEXT_NAME}</name>
+          <ip>
+
+          <?foreach {ip-pool-group}?>
+            <pool>
+              <name>{$VAR_IP_POOL_NAME}</name>
+              <ip-address>{$VAR_IP_POOL_NET}</ip-address>
+              <subnet-mask>{$VAR_IP_POOL_MASK}</subnet-mask>
+              <pool-type>static</pool-type>
+              <group-name>{name}</group-name>
+              <vrf>{$VAR_VRF}</vrf>
+            </pool>
+          <?end?>
+          </ip>
+        </context>
+
+      </config>
+    </device>
+  </devices>
+</config>
+

@@ -1,0 +1,107 @@
+<!-- template-packet-node-gi-context -->
+<!--
+  Configure APN traffic in Gi context
+
+  Initial context:
+  - /APN/apn
+
+  Object reference:
+  - [none]
+-->
+
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <devices xmlns="http://tail-f.com/ns/ncs">
+    <device>
+      <name>{$VAR_DEVICE}</name>
+      <config>
+
+        <!-- [STAROS] context sgi BGP peering -->
+        <context xmlns="http://tail-f.com/ned/cisco-staros">
+          <name>{$VAR_GI_CONTEXT_NAME}</name>
+          <router>
+            <bgp>
+              <as-num>{$VAR_PACKET_NODE_BGP_AS}</as-num>
+              <router-id>{$VAR_PACKET_NODE_BGP_ROUTER_ID}</router-id>
+              <neighbor>
+                <ip-address>{$VAR_EXT_ROUTER_GI_IP_ADDR}</ip-address>
+                <remote-as>{$VAR_EXT_ROUTER_BGP_AS}</remote-as>
+              </neighbor>
+              <address-family>
+                <ipv4-no-vrf>
+                  <ipv4>
+                    <redistribute>
+                      <connected/>
+                    </redistribute>
+                  </ipv4>
+                </ipv4-no-vrf>
+              </address-family>
+            </bgp>
+          </router>
+        </context>
+
+        <!-- [STAROS] context sgi VRF routing -->
+        <context xmlns="http://tail-f.com/ned/cisco-staros">
+          <name>{$VAR_GI_CONTEXT_NAME}</name>
+
+          <ip>
+            <vrf>
+              <name>{$VAR_VRF}</name>
+            </vrf>
+            <route>
+              <route>
+              <ip>0.0.0.0</ip>
+              <mask>0.0.0.0</mask>
+              <gateway-or-nexthop-address>0.0.0.0</gateway-or-nexthop-address>
+              <interface>
+                <name>{$VAR_TUNNEL_IF_NAME}</name>
+                <interface-data>
+                  <vrf>
+                    <name>{$VAR_VRF}</name>
+                  </vrf>
+                </interface-data>
+              </interface>
+              </route>
+            </route>
+          </ip>
+
+          <interface>
+            <name>{$VAR_TUNNEL_LOOPBACK_NAME}</name>
+            <mode>loopback</mode>
+            <ip>
+              <address>
+                <address>{$VAR_TUNNEL_LOOPBACK_IP}</address>
+                <subnetmask>255.255.255.255</subnetmask>
+              </address>
+            </ip>
+          </interface>
+
+          <interface>
+            <name>{$VAR_TUNNEL_IF_NAME}</name>
+            <mode>tunnel</mode>
+            <ip>
+              <vrf>
+              <forwarding>{$VAR_VRF}</forwarding>
+              </vrf>
+              <address>
+                <address>{$VAR_PACKET_NODE_TUNNEL_IP_PREFIX}</address>
+              </address>
+            </ip>
+            <tunnel-mode>
+              <gre>
+              <destination>
+                <address>{$VAR_EXT_ROUTER_GI_IP_ADDR}</address>
+              </destination>
+              <source>
+                <interface>{$VAR_TUNNEL_LOOPBACK_NAME}</interface>
+              </source>
+              </gre>
+            </tunnel-mode>
+          </interface>
+
+        </context>
+
+      </config>
+    </device>
+  </devices>
+</config>
+

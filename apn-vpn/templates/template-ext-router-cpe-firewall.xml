@@ -1,0 +1,59 @@
+<!-- template-ext-router-cpe-firewall -->
+<!--
+  Configure ASR1k external router connectivity to CPE firewall
+
+  Initial context:
+  - /APN/apn
+
+  Object reference:
+  - [none]
+-->
+
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <devices xmlns="http://tail-f.com/ns/ncs">
+    <device>
+      <name>{$VAR_DEVICE}</name>
+      <config>
+
+        <!-- [IOS] Gi / FW interface -->
+        <interface xmlns="urn:ios">
+          <GigabitEthernet>
+            <name>2</name>
+            <shutdown tags="delete"></shutdown>
+            <ip>
+              <no-address>
+                <address>false</address>
+              </no-address>
+            </ip>
+          </GigabitEthernet>
+        </interface>
+
+        <!-- [IOS] Customer firewall sub-interface -->
+        <interface xmlns="urn:ios">
+          <GigabitEthernet>
+            <name>2.{$VAR_EXT_ROUTER_FW_VLAN_ID}</name>
+            <shutdown tags="delete"></shutdown>
+            <encapsulation>
+              <dot1Q>
+                <vlan-id>{$VAR_EXT_ROUTER_FW_VLAN_ID}</vlan-id>
+              </dot1Q>
+            </encapsulation>
+            <vrf>
+              <forwarding>{$VAR_VRF}</forwarding>
+            </vrf>
+            <ip>
+              <address>
+                <primary>
+                  <address>{$VAR_EXT_ROUTER_FW_IP_ADDR}</address>
+                  <mask>{$VAR_EXT_ROUTER_FW_IP_MASK}</mask>
+                </primary>
+              </address>
+            </ip>
+          </GigabitEthernet>
+        </interface>
+
+
+      </config>
+    </device>
+  </devices>
+</config>
